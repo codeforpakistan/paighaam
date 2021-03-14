@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 
+from adapters import SMS
+
 
 def get_application():
     _app = FastAPI(title=settings.PROJECT_NAME)
@@ -19,3 +21,10 @@ def get_application():
 
 
 app = get_application()
+
+sms = SMS()
+
+@app.post("/send_sms")
+def send_sms(destination: str, message: str):
+    message_payload = {}
+    return sms.send(destination, message)
