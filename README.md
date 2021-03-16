@@ -21,7 +21,7 @@ Once env is setup you can just do a ```docker-compose up```
 
 
 ## Dev Roadmap (PRs welcome)
--[] Push Notifications
--[] Unit Tests
--[] Better Security
--[] Better Logging
+- [ ] Push Notifications
+- [ ] Unit Tests
+- [ ] Better Security
+- [ ] Better Logging
