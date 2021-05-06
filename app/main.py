@@ -1,3 +1,4 @@
+from random import randint
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -24,6 +25,14 @@ def get_application():
             "name": "email",
             "description": "Semd a omni-channel Email.",
         },
+        {
+            "name": "send verify code",
+            "description": "Send verify code in SMS"
+        },
+        {
+            "name": "verifcation",
+            "description": "Verify code for the recipient"
+        }
     ]
 
     _app = FastAPI(
@@ -56,6 +65,9 @@ app = get_application()
 sms = SMS()
 email = Email()
 
+# Dict for storing codes along with recipients
+recipient_codes = {}
+
 
 @app.post("/sms", tags=['sms'])
 @limiter.limit("5/minute")
@@ -69,3 +81,21 @@ def send_sms(destination: str, message: str, request: Request):
 def send_sms(recipient: str, subject: str, message: str, request: Request):
     message_payload = {}
     return email.send([recipient], subject, message)
+
+
+@app.get("/auth/send-verify-code", tags=["send verify code"])
+def send_verify_code(recipient: str):
+    code = str(randint(10000,99999))
+    recipient_codes[recipient] = code
+    return sms.send(recipient, f"Verify Code {code}")
+
+
+@app.get("/auth/verify-number", tags=["verifcation"])
+def verify_number(recipient: str, code: str):
+    verified = False
+    if recipient_codes.get(recipient, "") == code:
+        verified = True
+
+    return {
+        "verify": verified
+    }
