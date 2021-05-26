@@ -1,9 +1,10 @@
 from random import randint
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from security import check_authentication_header
 
 from app.core.config import settings
 
@@ -71,27 +72,28 @@ recipient_codes = {}
 
 @app.post("/sms", tags=['sms'])
 @limiter.limit("5/minute")
-def send_sms(destination: str, message: str, request: Request):
+def send_sms(destination: str, message: str, request: Request, auth: bool = Depends(check_authentication_header)):
     message_payload = {}
     return sms.send(destination, message)
 
 
 @app.post("/email", tags=['email'])
 @limiter.limit("5/minute")
-def send_sms(recipient: str, subject: str, message: str, request: Request):
+def send_sms(recipient: str, subject: str, message: str, request: Request, auth: bool = Depends(check_authentication_header)):
     message_payload = {}
     return email.send([recipient], subject, message)
 
 
 @app.get("/auth/send-verify-code", tags=["send verify code"])
-def send_verify_code(recipient: str):
+def send_verify_code(recipient: str, auth: bool = Depends(check_authentication_header)):
+    print('AUTH',auth)
     code = str(randint(10000,99999))
     recipient_codes[recipient] = code
     return sms.send(recipient, f"Verify Code {code}")
 
 
 @app.get("/auth/verify-number", tags=["verifcation"])
-def verify_number(recipient: str, code: str):
+def verify_number(recipient: str, code: str, auth: bool = Depends(check_authentication_header)):
     verified = False
     if recipient_codes.get(recipient, "") == code:
         verified = True
