@@ -11,7 +11,7 @@ class SMS:
                 json={
                     "from": "Digi Alert",
                     "to": destination,
-                    "message": "This is a test message: " + message,
+                    "message": "KP Super App " + message,
                 },
             )
             return r.json()
