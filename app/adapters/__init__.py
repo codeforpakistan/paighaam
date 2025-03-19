@@ -6,17 +6,22 @@ class SMS:
     def send(self, destination, message):
         try:
             r = post(
-                url=os.getenv("MONTY_BASEURL") + "/smppServers/sms",
-                headers={"Authorization": os.getenv("MONTY_AUTH_HEADER")},
+                url=f"{os.getenv('MONTY_BASEURL')}/API/SendBulkSMS",
+                headers={
+                    "Authorization": f"Basic {os.getenv('AUTH_HEADER')}",
+                    "X-Access-Token": os.getenv('AUTH_TOKEN'),
+                    "Content-Type": "application/json"
+                },
                 json={
-                    "from": "Digi Alert",
-                    "to": destination,
-                    "message": "This is a test message: " + message,
+                    "source": "SMS-ALERT.",
+                    "destination": [destination],
+                    "text": message,
+                    "campaignname": "Paigham"
                 },
             )
             return r.json()
-        except:
-            return "error"
+        except Exception as e:
+            return {"error": str(e)}
 
 
 class Email:
