@@ -58,14 +58,12 @@ email = Email()
 
 
 @app.post("/sms", tags=['sms'])
-@limiter.limit("5/minute")
 def send_sms(destination: str, message: str, request: Request):
     message_payload = {}
     return sms.send(destination, message)
 
 
 @app.post("/email", tags=['email'])
-@limiter.limit("5/minute")
 def send_sms(recipient: str, subject: str, message: str, request: Request):
     message_payload = {}
     return email.send([recipient], subject, message)
